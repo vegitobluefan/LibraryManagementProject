@@ -86,6 +86,18 @@ class Library:
         else:
             print("Книга не найдена.")
 
+    def save_to_file(self, filename: str) -> None:
+        """Сохранение данных библиотеки в текстовый файл."""
+        try:
+            with open(filename, 'w', encoding='utf-8') as file:
+                for book in self.books:
+                    file.write(
+                        f"{book.id}, {book.title}, {book.author}, "
+                        f"{book.year}, {book.status}")
+            print(f"Данные успешно сохранены в файл {filename}.")
+        except Exception as exc:
+            print(f"Ошибка при сохранении данных: {exc}")
+
 
 def print_menu():
     print("\nМеню:")
@@ -94,7 +106,8 @@ def print_menu():
     print("3. Найти книгу по названию, автору, году")
     print("4. Показать все книги")
     print("5. Изменить статус книги")
-    print("6. Выход")
+    print("6. Сохранить данные в файл")
+    print("7. Выход")
 
 
 def main():
@@ -141,6 +154,9 @@ def main():
                 print("Ошибка: id должен быть числом.")
 
         elif action == "6":
+            library.save_to_file("library.txt")
+
+        elif action == "7":
             print("Выход из программы.")
             break
         else:
