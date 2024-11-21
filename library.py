@@ -25,7 +25,7 @@ class Library:
         """Получение книги по id."""
         return next((book for book in self.books if book.id == book_id), None)
 
-    def add_book(self, title: str, author: str, year: int) -> None:
+    def add_book(self, title: str, author: str, year: int):
         """Добавление книги в библиотеку."""
         if not title or not author:
             print("Ошибка: поля заполнены некорректно.")
@@ -45,7 +45,7 @@ class Library:
         self.books.append(new_book)
         print(f"Книга '{title}' добавлена в библиотеку.")
 
-    def remove_book(self, book_id: int) -> None:
+    def remove_book(self, book_id: int):
         """Удаление книги по id."""
         book = self.get_book_by_id(book_id)
         if book:
@@ -54,7 +54,7 @@ class Library:
         else:
             print("Книга не найдена.")
 
-    def find_books(self, query: str) -> list[Book]:
+    def find_books(self, query: str):
         """Поиск книги по title, author или year."""
         found_books = [
             book for book in self.books if query.lower() in book.title.lower()
@@ -63,7 +63,7 @@ class Library:
         ]
         return found_books
 
-    def display_books(self) -> None:
+    def display_books(self):
         """Отображение всех книг в библиотеке."""
         if not self.books:
             print("Библиотека пуста.")
@@ -72,7 +72,7 @@ class Library:
             for book in self.books:
                 print(book)
 
-    def update_book_status(self, book_id: int, new_status: str) -> None:
+    def update_book_status(self, book_id: int, new_status: str):
         """Обновление статуса книги."""
         valid_statuses = ("в наличии", "выдана")
         if new_status not in valid_statuses:
@@ -86,7 +86,7 @@ class Library:
         else:
             print("Книга не найдена.")
 
-    def save_to_file(self, filename: str) -> None:
+    def save_data_to_file(self, filename: str):
         """Сохранение данных библиотеки в текстовый файл."""
         try:
             with open(filename, 'w', encoding='utf-8') as file:
@@ -98,6 +98,21 @@ class Library:
         except Exception as exc:
             print(f"Ошибка при сохранении данных: {exc}")
 
+    def load_data_from_file(self, filename: str):
+        """Загрузка данных библиотеки из файла."""
+        try:
+            with open(filename, "r", encoding="utf-8") as file:
+                self.books = []
+                for line in file:
+                    book_id, title, author, year, status = line.split(",")
+                    self.books.append(
+                        Book(int(book_id), title, author, int(year), status))
+            print(f"Данные успешно загружены из файла {filename}.")
+        except FileNotFoundError:
+            print(f"Файл {filename} не найден.")
+        except Exception as e:
+            print(f"Ошибка при загрузке данных: {e}")
+
 
 def print_menu():
     print("\nМеню:")
@@ -107,10 +122,12 @@ def print_menu():
     print("4. Показать все книги")
     print("5. Изменить статус книги")
     print("6. Сохранить данные в файл")
-    print("7. Выход")
+    print("7. Загрузить данные из файла")
+    print("8. Выход")
 
 
 def main():
+    filename = "library.txt"
     library = Library()
 
     while True:
@@ -118,9 +135,9 @@ def main():
         action = input("Выберите действие: ")
 
         if action == "1":
+            title = input("Введите название книги: ")
+            author = input("Введите автора книги: ")
             try:
-                title = input("Введите название книги: ")
-                author = input("Введите автора книги: ")
                 year = int(input("Введите год издания: "))
                 library.add_book(title, author, year)
             except ValueError:
@@ -140,7 +157,7 @@ def main():
                 for book in results:
                     print(book)
             else:
-                print("Книга не найдена.")
+                print("По вашему запросу ничего не найдено.")
 
         elif action == "4":
             library.display_books()
@@ -154,9 +171,12 @@ def main():
                 print("Ошибка: id должен быть числом.")
 
         elif action == "6":
-            library.save_to_file("library.txt")
+            library.save_data_to_file(filename)
 
         elif action == "7":
+            library.load_data_from_file(filename)
+
+        elif action == "8":
             print("Выход из программы.")
             break
         else:
