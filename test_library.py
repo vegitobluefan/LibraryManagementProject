@@ -36,9 +36,9 @@ class TestLibrary(unittest.TestCase):
         self.library.add_book("Обломов", "И. Гончаров", 1859)
         self.library.add_book("Обрыв", "И. Гончаров", 1869)
         results = self.library.find_books("Обломов")
-        self.assertEqual(len(results), 1) # 1 книга Обломов
+        self.assertEqual(len(results), 1)  # 1 книга Обломов
         results = self.library.find_books("И. Гончаров")
-        self.assertEqual(len(results), 2) # 2 книги Гончарова
+        self.assertEqual(len(results), 2)  # 2 книги Гончарова
         results = self.library.find_books("2019")
         self.assertEqual(len(results), 0)  # Нет книг за 2019 год
 

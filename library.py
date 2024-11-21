@@ -11,8 +11,8 @@ class Book:
 
     def __str__(self) -> str:
         return (
-            f"id: {self.id}, Название: {self.title}, Автор: {self.author}, "
-            f"Год издания: {self.year}, Статус: {self.status}")
+            f"id: {self.id}, Название:{self.title}, Автор:{self.author}, "
+            f"Год издания: {self.year}, Статус:{self.status}")
 
 
 class Library:
@@ -31,13 +31,10 @@ class Library:
             print("Ошибка: поля заполнены некорректно.")
             return
 
-        for book in self.books:
-            if (
-                book.title == title and book.author == author
-                and book.year == year
-            ):
-                print(f"Книга '{title}' уже существует в библиотеке.")
-                return
+        if any(book.title == title and book.author == author and
+               book.year == year for book in self.books):
+            print(f"Книга '{title}' уже существует в библиотеке.")
+            return
 
         book_id = max([book.id for book in self.books], default=0) + 1
         status = "в наличии"
@@ -59,8 +56,7 @@ class Library:
         found_books = [
             book for book in self.books if query.lower() in book.title.lower()
             or query.lower() in book.author.lower()
-            or query == str(book.year)
-        ]
+            or query == str(book.year)]
         return found_books
 
     def display_books(self):
@@ -74,11 +70,9 @@ class Library:
 
     def update_book_status(self, book_id: int, new_status: str):
         """Обновление статуса книги."""
-        valid_statuses = ("в наличии", "выдана")
-        if new_status not in valid_statuses:
+        if new_status not in {"в наличии", "выдана"}:
             print("Ошибка: некорректный статус.")
             return
-
         book = self.get_book_by_id(book_id)
         if book:
             book.status = new_status
@@ -89,11 +83,12 @@ class Library:
     def save_data_to_file(self, filename: str):
         """Сохранение данных библиотеки в текстовый файл."""
         try:
-            with open(filename, 'w', encoding='utf-8') as file:
+            with open(filename, "w", encoding="utf-8") as file:
                 for book in self.books:
                     file.write(
                         f"{book.id}, {book.title}, {book.author}, "
-                        f"{book.year}, {book.status}")
+                        f"{book.year}, {book.status}\n"
+                    )
             print(f"Данные успешно сохранены в файл {filename}.")
         except Exception as exc:
             print(f"Ошибка при сохранении данных: {exc}")
@@ -102,16 +97,25 @@ class Library:
         """Загрузка данных библиотеки из файла."""
         try:
             with open(filename, "r", encoding="utf-8") as file:
-                self.books = []
-                for line in file:
-                    book_id, title, author, year, status = line.split(",")
-                    self.books.append(
-                        Book(int(book_id), title, author, int(year), status))
+                self.books = [
+                    Book(int(book_id), title, author, int(year), status)
+                    for line in file
+                    for book_id, title, author,
+                    year, status in [line.split(",")]
+                ]
             print(f"Данные успешно загружены из файла {filename}.")
         except FileNotFoundError:
             print(f"Файл {filename} не найден.")
         except Exception as e:
             print(f"Ошибка при загрузке данных: {e}")
+
+    def get_int_input(self, prompt: str) -> int:
+        """Функция для устранения повторяющегося кода, проверка на число."""
+        while True:
+            try:
+                return int(input(prompt))
+            except ValueError:
+                print("Ошибка: введите корректное число.")
 
 
 def print_menu():
@@ -137,18 +141,12 @@ def main():
         if action == "1":
             title = input("Введите название книги: ")
             author = input("Введите автора книги: ")
-            try:
-                year = int(input("Введите год издания: "))
-                library.add_book(title, author, year)
-            except ValueError:
-                print("Ошибка: год должен быть числом.")
+            year = library.get_int_input("Введите год издания: ")
+            library.add_book(title, author, year)
 
         elif action == "2":
-            try:
-                book_id = int(input("Введите id книги для удаления: "))
-                library.remove_book(book_id)
-            except ValueError:
-                print("Ошибка: id должен быть числом.")
+            book_id = library.get_int_input("Введите id книги для удаления: ")
+            library.remove_book(book_id)
 
         elif action == "3":
             query = input("Введите название, автора или год: ")
@@ -163,12 +161,9 @@ def main():
             library.display_books()
 
         elif action == "5":
-            try:
-                book_id = int(input("Введите id книги: "))
-                new_status = input("Введите новый статус (в наличии/выдана): ")
-                library.update_book_status(book_id, new_status)
-            except ValueError:
-                print("Ошибка: id должен быть числом.")
+            book_id = library.get_int_input("Введите id книги: ")
+            new_status = input("Введите новый статус (в наличии/выдана): ")
+            library.update_book_status(book_id, new_status)
 
         elif action == "6":
             library.save_data_to_file(filename)
